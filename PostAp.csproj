@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Script\AutomaticVerticalSize.cs" />
     <Compile Include="Assets\Script\MouseController.cs" />
     <Compile Include="Assets\Script\PackedObject.cs" />
     <Compile Include="Assets\Script\SimplePool.cs" />
