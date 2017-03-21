@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Events;
+using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour {
 
     public GameObject circleCursorPrefab;
+
+    TileType buildModeTile;
 
     Tile tileDragStart;
     Tile tileUnderMouse;
@@ -57,7 +61,13 @@ public class MouseController : MonoBehaviour {
 
     void UpdateDragging ()
     {
-        if (Input.GetMouseButtonDown(0))
+        
+        if ( EventSystem.current.IsPointerOverGameObject() )
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject() )
         {
             dragStartPosition = currentFrameMousePosition;
         }
@@ -90,6 +100,10 @@ public class MouseController : MonoBehaviour {
 
         if (Input.GetMouseButton(0))
         {
+            if (dragStartPosition.z == -1)
+            {
+                return;
+            }
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
@@ -108,6 +122,11 @@ public class MouseController : MonoBehaviour {
 
         if (Input.GetMouseButtonUp(0))
         {
+            if (dragStartPosition.z == -1)
+            {
+                return;
+            }
+
             for (int x = startX; x <= endX; x++)
              {
                 for (int y = startY; y <= endY; y++)
@@ -115,10 +134,12 @@ public class MouseController : MonoBehaviour {
                     Tile t = WorldController.Instance.World.GetTileAt(x, y);
                     if (t != null)
                     {
-                        t.Type = Tile.TileType.Floor;
+                        t.Type = buildModeTile;
                     }
                 }
             }
+            dragStartPosition = new Vector3( -1, -1, -1);
+            
         }
     }
 
@@ -135,6 +156,16 @@ public class MouseController : MonoBehaviour {
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
 
 
+    }
+
+    public void SetModeBuildFloor()
+    {
+        buildModeTile = TileType.Floor;
+    }
+
+    public void SetModeDeleteFloor()
+    {
+        buildModeTile = TileType.Empty;
     }
 
 }

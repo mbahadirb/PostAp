@@ -2,13 +2,13 @@
 using System.Collections;
 using System;
 
-public class Tile {
+public enum TileType
+{
+    Empty,
+    Floor
+}
 
-    public enum TileType
-    {
-        Empty,
-        Floor
-    }
+public class Tile {
 
     Action<Tile> tileTypeChangedDelegate;
 
@@ -60,6 +60,11 @@ public class Tile {
 
     public void RegisterTileTypeChangeDelegate ( Action<Tile> callBack )
     {
-        tileTypeChangedDelegate = callBack;
+        tileTypeChangedDelegate += callBack;
+    }
+
+    public void UnRegisterTileTypeChangeDelegate(Action<Tile> callBack)
+    {
+        tileTypeChangedDelegate -= callBack;
     }
 }

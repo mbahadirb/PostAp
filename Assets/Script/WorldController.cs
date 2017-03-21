@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class WorldController : MonoBehaviour {
 
     static WorldController instance;
+
+    Dictionary<Tile, GameObject> tileToGameObjectDictionary;
 
     public static WorldController Instance {
         get
@@ -45,6 +48,8 @@ public class WorldController : MonoBehaviour {
         
 
         world = new World();
+
+        tileToGameObjectDictionary = new Dictionary<Tile, GameObject>();
         
         //world.RandomizeTiles();
         SetupTileGameObjects();
@@ -56,13 +61,42 @@ public class WorldController : MonoBehaviour {
 	
 	}
 
-    void OnTileTypeChange( Tile tileData, GameObject tileGO )
+    void DestroyAllTileGameObjects()
     {
-        if (tileData.Type == Tile.TileType.Floor)
+        while (tileToGameObjectDictionary.Count > 0)
+        {
+            Tile tileData = tileToGameObjectDictionary.Keys.First();
+            GameObject tileGO = tileToGameObjectDictionary[tileData];
+
+            tileToGameObjectDictionary.Remove(tileData);
+
+            tileData.UnRegisterTileTypeChangeDelegate(OnTileTypeChange);
+            Destroy(tileGO);
+
+        }
+    }
+
+    void OnTileTypeChange( Tile tileData )
+    {
+        if (tileToGameObjectDictionary.ContainsKey(tileData) == false )
+        {
+            Debug.LogError("Doesn't contain the tile data.");
+            return;
+        }
+
+        GameObject tileGO = tileToGameObjectDictionary[tileData];
+
+        if ( tileGO == null )
+        {
+            Debug.LogError("Tile Game Object didn't register correctly.");
+            return;
+        }
+
+        if (tileData.Type == TileType.Floor)
         {
             tileGO.GetComponent<SpriteRenderer>().sprite = floorSprite;
         }
-        else if (tileData.Type == Tile.TileType.Empty)
+        else if (tileData.Type == TileType.Empty)
         {
             tileGO.GetComponent<SpriteRenderer>().sprite = null;
         }
@@ -82,7 +116,8 @@ public class WorldController : MonoBehaviour {
                 tileGO.AddComponent<SpriteRenderer>();
 
                 Tile tileData = world.GetTileAt(x, y);
-                tileData.RegisterTileTypeChangeDelegate((tile) => { OnTileTypeChange(tile, tileGO); });
+                tileData.RegisterTileTypeChangeDelegate( OnTileTypeChange);
+                tileToGameObjectDictionary.Add(tileData, tileGO);
 
                 tileGO.name = "Tile_" + x + "_" + y;
                 tileGO.transform.position = new Vector3(tileData.X, tileData.Y, 0);
