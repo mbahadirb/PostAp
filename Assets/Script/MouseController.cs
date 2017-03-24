@@ -10,6 +10,8 @@ public class MouseController : MonoBehaviour {
 
     TileType buildModeTile;
 
+    bool buildModeIsObjects = false;
+
     Tile tileDragStart;
     Tile tileUnderMouse;
 
@@ -132,9 +134,18 @@ public class MouseController : MonoBehaviour {
                 for (int y = startY; y <= endY; y++)
                 {
                     Tile t = WorldController.Instance.World.GetTileAt(x, y);
+                   
                     if (t != null)
                     {
-                        t.Type = buildModeTile;
+                        if (buildModeIsObjects == true)
+                        {
+                            //FIXME Only walls will be built at this mode ATM
+
+                        }
+                        else
+                        {
+                            t.Type = buildModeTile;
+                        }
                     }
                 }
             }
@@ -160,12 +171,18 @@ public class MouseController : MonoBehaviour {
 
     public void SetModeBuildFloor()
     {
+        buildModeIsObjects = false;
         buildModeTile = TileType.Floor;
     }
 
     public void SetModeDeleteFloor()
     {
+        buildModeIsObjects = false;
         buildModeTile = TileType.Empty;
     }
 
+    public void SetModeBuildWall()
+    {
+        buildModeIsObjects = true;
+    }
 }

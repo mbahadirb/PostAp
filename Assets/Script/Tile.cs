@@ -30,6 +30,17 @@ public class Tile {
     }
     PackedObject packedObject;
     UnpackedObject unpackedObject;
+    public UnpackedObject UnpackedObject
+    {
+        get
+        {
+            return unpackedObject;
+        }
+        set
+        {
+            unpackedObject = value;
+        }
+    }
 
     World world;
 
